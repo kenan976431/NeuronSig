@@ -17,60 +17,17 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 tf.compat.v1.disable_eager_execution()
 
 # %%
-model = load_model('/data0/jinhaibo/DGAN/train_model/tiny_imagenet_vgg19_10_new.h5')
+model = load_model('train_model/tiny_imagenet_vgg19_10_new.h5')
 model.summary()
 
 #%%
-aaa = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data.npy')
-#%%GTSRB
-# x_train = np.load('/data0/jinhaibo/DGAN/GTSRB_img_Crop/Final_Training/GTSRB100.npy')
-# y_train = np.load('/data0/jinhaibo/DGAN/GTSRB_img_Crop/Final_Training/GTSRB100-labels.npy')
-# y_train = to_categorical(y_train, 43)
-# x_train = x_train /255.0
-# x_train_1 = []
-# x_train_2 = []
-# for i in range(43):
-#     x = x_train[np.argmax(y_train, axis=1)==i]
-#     x_train_1.extend(x[:50])
-#     # x_train_2.extend(x[30:40])
-# # x_111 = np.vstack((x_train_1, x_train_2))
-#
-# advs = np.load('/data0/jinhaibo/DGAN/adv_GTSRB/resnet20/FGSM/adv.npy')
-# advs_label = np.load('/data0/jinhaibo/DGAN/adv_GTSRB/resnet20/FGSM/truth_label.npy')
-# advs_label = to_categorical(advs_label, 43)
-# adv_train = []
-# # adv_test = []
-# for i in range(43):
-#     x = advs[np.argmax(advs_label, axis=1)==i]
-#     adv_train.extend(x[:50])
-#     # adv_test.extend(x[30:40])
-# detect_simple = np.load('//data0/jinhaibo/DGAN/adv_GTSRB/resnet20/JSMA/adv.npy')
-# x_222 = np.vstack((adv_train, adv_test))
-#%%
-# cifar10
-(x_train, y_train), (x_test, y_test) = load_data()
-x_train = x_train / 255.0
-x_test = x_test / 255.0
-y_train = to_categorical(y_train, num_classes=10)
-y_test = to_categorical(y_test, num_classes=10)
-# advs = np.load('/data0/jinhaibo/DGAN/adv_cifar10/vgg19/PGD/adv.npy')
-# layer_num = 4096
-#%%
-# advs_train = []
-# advs_test = []
-# for i in range(10):
-#     path = '/data0/jinhaibo/DGAN/adv_imagenet/mobile/FGSM/adv_x' + str(i)+'.npy'
-#     adv = np.load(path)
-#     advs_train.extend(adv[:20])
-#     advs_test.extend(adv[20:50])
-# advs = np.vstack((advs_train, advs_test))
-# advs = np.load('/public/lixiaohao/code/dataset/cifar10/alexnet/FGSM/adv.npy')
-# detect = np.load('/home/lxh/lixiaohao/code/dataset/cifar10/VGG19/adv/FGSM/adv.npy')
+aaa = np.load('vgg/train/img_data.npy')
+
 #%%
 # imagenet
-x_train1 = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data.npy')
+x_train1 = np.load('vgg/train/img_data.npy')
 x_train1 = x_train1/255.0
-y_train1 = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data_label.npy')
+y_train1 = np.load('vgg/train/img_data_label.npy')
 x_train = []
 y_train = []
 for i in range(10):
@@ -137,15 +94,6 @@ def get_position(input_data, model, model_layer_dict, threshold=0):
 
 
 # %%
-# x_train = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data.npy')
-# x_train = x_train/255.0
-# y_train = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data_label.npy')
-# x_adv = np.load('/data0/jinhaibo/lixiaohao/adv_imagenet/mobile/Square/adv_x0.npy')
-# layer_num = 1024  ##fc2 total neurons
-# benign_features = []
-# num_sample = 100  ## expend the data size
-# num_benign = 100
-#%% 画图，100张求平均
 for i in range(num_benign):
     x = x_train[i]
     x = np.expand_dims(x, axis=0)
@@ -161,10 +109,9 @@ for i in range(num_benign):
         benign_features = neuron_positions
     else:
         benign_features = np.add(benign_features, neuron_positions)
-# np.save('/data0/jinhaibo/lixiaohao/plot/Benign_activation_frequency.npy', benign_features)
-# print(benign_features)
-#%% 画图，100张样本的神经元激活情况
-x_adv = np.load('/data0/jinhaibo/DGAN/adv_imagenet/mobile/PGD/adv_x0.npy')
+
+#%% 
+x_adv = np.load('adv_imagenet/mobile/PGD/adv_x0.npy')
 layer_num = 4096
 neuron_positions_100 = []
 
@@ -180,9 +127,9 @@ for i in range(100):
                      not v]
     neuron_positions = [0 if not v else 1 for (layer_name, index), v in list(model_layer_dict.items())[:layer_num]]
     neuron_positions_100.append(neuron_values)
-np.save('/data0/jinhaibo/lixiaohao/plot/Benign_activation_value_100.npy', neuron_positions_100)
+np.save('plot/Benign_activation_value_100.npy', neuron_positions_100)
 #%%
-# aa = np.load('/data0/jinhaibo/lixiaohao/plot/Benign_activation_100.npy')
+# aa = np.load('plot/Benign_activation_100.npy')
 #%%
 # layer_num = 64  ##fc2 total neurons
 benign_features = []
@@ -204,21 +151,21 @@ for i in range(num_benign):
     benign_features.append(features)
 
 #%%
-np.save('/data0/jinhaibo/lixiaohao/adv_imageNet/VGG19/Imagenet_VGG19_Benign.npy', benign_features)
+np.save('adv_imageNet/VGG19/Imagenet_VGG19_Benign.npy', benign_features)
 
 #%%
-# benign_features = np.load('/data0/jinhaibo/lixiaohao/adv_cifar10/VGG19/VGG19_CIFAR10_benign_500_noposition.npy')
+# benign_features = np.load('adv_cifar10/VGG19/VGG19_CIFAR10_benign_500_noposition.npy')
 benign_features = np.array(benign_features)
 benign_features = benign_features[:,0,:]
 
 #%%
 for i in range(10):
-    path = '/data0/jinhaibo/DGAN/adv_imagenet/vgg/adv_examples/FGSM/adv_x' + str(i) + '.npy'
+    path = 'adv_imagenet/vgg/adv_examples/FGSM/adv_x' + str(i) + '.npy'
     if i == 0:
         advs = np.load(path)[:20]
     else:
         advs = np.vstack((advs,np.load(path)[:20]))
-# advs = np.load('/data0/jinhaibo/DGAN/adv_cifar10/vgg19/FGSM/adv.npy')
+# advs = np.load('adv_cifar10/vgg19/FGSM/adv.npy')
 # advs = advs[:, 0, :, :, :]
 #%%
 layer_num = 4096
@@ -241,10 +188,10 @@ for i in range(num_sample):
 adv_features = np.array(adv_features)
 adv_features = adv_features[:, 0, :]
 #%%
-np.save('/data0/jinhaibo/lixiaohao/adv_cifar10/VGG19/cifar_PGD_vgg19.npy', adv_features)
+np.save('adv_cifar10/VGG19/cifar_PGD_vgg19.npy', adv_features)
 #%%
 for i in range(10):
-    path = '/data0/jinhaibo/DGAN/adv_imagenet/vgg/adv_examples/FGSM/adv_x' + str(i) + '.npy'
+    path = 'adv_imagenet/vgg/adv_examples/FGSM/adv_x' + str(i) + '.npy'
     if i == 0:
         detect_example = np.load(path)[20:40]
     else:
@@ -274,16 +221,16 @@ detect_features = detect_features[:,0,:]
 
 #%%
 for i in range(8):
-    path = '/data0/jinhaibo/lixiaohao/adv_cifar10/Vgg16/clean/' + str(i) + '.npy'
+    path = 'adv_cifar10/Vgg16/clean/' + str(i) + '.npy'
     if i == 0:
         benign_features = np.load(path)
     else:
         benign_features = np.vstack((benign_features, np.load(path)))
 benign_features = benign_features[: , 0, :]
 #%%
-# benign_features = np.load('/data0/jinhaibo/lixiaohao/adv_cifar10/VGG19/cifar_noise_vgg19.npy')
+# benign_features = np.load('adv_cifar10/VGG19/cifar_noise_vgg19.npy')
 for i in range(8):
-    path = '/data0/jinhaibo/lixiaohao/adv_imagenet/mobile/PWA/' + str(i) + '.npy'
+    path = 'adv_imagenet/mobile/PWA/' + str(i) + '.npy'
     if i == 0:
         adv_features = np.load(path)
     else:
@@ -292,7 +239,7 @@ adv_features = adv_features[:, 0, :]
 
 #%%
 for i in range(8):
-    path = '/data0/jinhaibo/lixiaohao/adv_cifar10/Vgg16/Boundary/' + str(i) + '.npy'
+    path = 'adv_cifar10/Vgg16/Boundary/' + str(i) + '.npy'
     if i == 0:
         detect_features = np.load(path)
     else:
@@ -331,8 +278,8 @@ def meta_classify(input_shape):
 # %%
 model_detect = meta_classify(input_shape=Input(shape=x_to_train.shape[1:]))
 model_detect.fit(x_to_train, y_to_train_one, batch_size=5, epochs=20)
-model_detect.save('/data0/jinhaibo/lixiaohao/adv_cifar10/vgg16/vgg19_FGSM_0.4.h5')
-# model_detect = load_model('/data0/jinhaibo/lixiaohao/GTSRB/ResNet20_checker.h5')
+model_detect.save('adv_cifar10/vgg16/vgg19_FGSM_0.4.h5')
+# model_detect = load_model('GTSRB/ResNet20_checker.h5')
 # %%ACC score
 loss, acc = model_detect.evaluate(x_to_test[sec_num:], y_to_test_one[sec_num:])
 loss_benign, acc_benign = model_detect.evaluate(x_to_test[:sec_num], y_to_test_one[:sec_num])
@@ -341,3 +288,4 @@ print("Loss: %f; acc: %f; loss_beign: %f; acc_benign: %f" % (loss, acc, loss_ben
 detect_pred_test = model_detect.predict(x_to_test)
 roc_value = roc_auc_score(y_to_test_one, detect_pred_test)
 print('roc_value', roc_value)
+
