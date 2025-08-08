@@ -232,35 +232,6 @@ def generate_ml_loo_features(reference, model, x, interested_layers):
     return combined_features
 
 
-# %%
-# (x_train, y_train), (x_test, y_test) = load_data()
-# x_train = x_train / 255.0
-# x_test = x_test / 255.0
-# y_train = to_categorical(y_train, 10)
-# y_test = to_categorical(y_test, 10)
-# x_train1 = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data.npy')
-# x_train1 = x_train1/255.0
-# y_train1 = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data_label.npy')
-# x_train = []
-# y_train = []
-# for i in range(10):
-#     if i == 0:
-#         x_train = x_train1[y_train1 == i][:40]
-#         y_train = y_train1[y_train1 == i][:40]
-#     else:
-#         x_train = np.vstack((x_train, x_train1[y_train1 == i][:40]))
-#         y_train = np.hstack((y_train, y_train1[y_train1 == i][:40]))
-# X_train = x_train[:200]
-# X_test = x_train[200: 400]
-# advs_train = []
-# advs_test = []
-# for i in range(10):
-#     path = '/data0/jinhaibo/DGAN/adv_imagenet/mobile/FGSM/adv_x' + str(i)+'.npy'
-#     adv = np.load(path)
-#     advs_train.extend(adv[:20])
-#     advs_test.extend(adv[20:50])
-# advs = np.vstack((advs_train, advs_test))
-
 def get_data_list(path):
     with open(path, 'r', encoding='utf-8') as f:
         strings = f.readlines()
@@ -271,17 +242,17 @@ def get_data_list(path):
     return audiolist, labellist, namelist
 
 
-wav_root = "/data0/BigPlatform/ZJPlatform/001_Audio/000-Dataset/000-Voice/001-Vocal_set/000-VCTK/VCTK_old/Same_length/WAV"
-train_list = "/data0/BigPlatform/ZJPlatform/001_Audio/001-Demo/Voiceprint_GJ/VCTK_data_lists/train_list.txt"
+wav_root = "Same_length/WAV"
+train_list = "VCTK_data_lists/train_list.txt"
 npz_paths, label_lists, name_lists = get_data_list(train_list)
-npz_path = npz_paths  # 取1000个数据
+npz_path = npz_paths
 label_list = label_lists
 name_list = name_lists
 Y = label_list
 X = [np.load(npz)["coded_sp"] for npz in npz_path]
 x_train = np.array(X)
 y_train = to_categorical(Y, 30)
-advs = np.load('/data0/jinhaibo/DGAN/Inverse_Peturbation/Voiceprint_nip/DeepSpeaker/Boundary/advs.npy')
+advs = np.load('DeepSpeaker/Boundary/advs.npy')
 X_train = x_train[:200]
 X_test = x_train[200: 400]
 X_train_adv = advs[:200]
@@ -298,7 +269,7 @@ x = {
         'adv': X_test_adv,
     },
 }
-model = load_model('/data0/jinhaibo/DGAN/Inverse_Peturbation/Voiceprint_nip/models/DeepSpeaker_all.h5')
+model = load_model('DeepSpeaker_all.h5')
 model.summary()
 # %%
 cat = {'original': 'ori', 'adv': 'adv', 'noisy': 'noisy'}
@@ -360,3 +331,4 @@ def train_and_evaluate(detections, attack, fpr_upper=1.0):
     plt.savefig(figure_name)
 
     return auc_dict, tpr1, tpr5, tpr10
+
