@@ -14,8 +14,8 @@ from art.estimators.classification import KerasClassifier
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 tf.compat.v1.disable_eager_execution()
-# model = load_model('/home/lxh/lixiaohao/code/dataset/cifar10/alexnet/cifar10_alexnet.h5')
-model = load_model('/data0/jinhaibo/DGAN/Inverse_Peturbation/Voiceprint_nip/models/DeepSpeaker_all.h5')
+
+model = load_model('DeepSpeaker_all.h5')
 # %%VCTK
 def get_data_list(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -27,8 +27,8 @@ def get_data_list(path):
     return audiolist, labellist, namelist
 
 
-wav_root = "/data0/BigPlatform/ZJPlatform/001_Audio/000-Dataset/000-Voice/001-Vocal_set/000-VCTK/VCTK_old/Same_length/WAV"
-train_list = "/data0/BigPlatform/ZJPlatform/001_Audio/001-Demo/Voiceprint_GJ/VCTK_data_lists/train_list.txt"
+wav_root = "Same_length/WAV"
+train_list = "train_list.txt"
 npz_paths, label_lists, name_lists = get_data_list(train_list)
 npz_path = npz_paths  # 取1000个数据
 label_list = label_lists
@@ -41,13 +41,13 @@ y_train = to_categorical(Y, 30)
 # x_train = x_train/255.0
 # x_test = x_test/255.0
 # y_train = to_categorical(y_train, 10)
-# x_train = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data.npy')
+# x_train = np.load('vgg/train/img_data.npy')
 #
-# y_train = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data_label.npy')
+# y_train = np.load('vgg/train/img_data_label.npy')
 # advs_train = []
 # advs = []
 # for i in range(5):
-#     path = '/data0/jinhaibo/lixiaohao/adv_cifar10/Vgg16/PGD/adv_train_' + str(i+1)+'.npy'
+#     path = 'adv_cifar10/Vgg16/PGD/adv_train_' + str(i+1)+'.npy'
 #     adv = np.load(path)
 #     if i== 0:
 #         advs = adv
@@ -55,7 +55,7 @@ y_train = to_categorical(Y, 30)
 #         advs = np.vstack((advs, adv))
 #
 #%%
-advs = np.load('/data0/jinhaibo/DGAN/Inverse_Peturbation/Voiceprint_nip/DeepSpeaker/Boundary/advs.npy')
+advs = np.load('DeepSpeaker/Boundary/advs.npy')
 # advs = advs[:, 0, :, :, :]
 # for i in range(500):
     # y_predict = model.predict(x_train[i: i+1])
@@ -94,16 +94,9 @@ for i in range(400):
         FPR += 1
 print(TPR/400)
 print(FPR/400)
-# end = time.time()
-# print(end-start)
-# for i in range(len(x_defense)):
-#     print(i)
-#     if np.argmax(model.predict(x_defense[i:i+1])) == np.argmax(model.predict(x_test_hun[i:i+1])):
-#         y_predict.append(0)
-#     else:
-#         y_predict.append(1)
-#%%
+
 detect_pred_test = to_categorical(y_predict, 2)
 roc_value = roc_auc_score(y_test_hun, detect_pred_test)
 print('roc_value', roc_value)
+
 
