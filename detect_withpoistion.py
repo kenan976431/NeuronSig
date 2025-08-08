@@ -16,13 +16,14 @@ import matplotlib.pyplot as plt
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 tf.compat.v1.disable_eager_execution()
+
 #%%
-aa = np.load('/data0/jinhaibo/lixiaohao/features4demo/CIFAR10/VGG19/FGSM/Adv/features_0.npy')
+aa = np.load('features4demo/CIFAR10/VGG19/FGSM/Adv/features_0.npy')
 
 # %%
 for i in range(80):
-    path_Benign = '/data0/jinhaibo/lixiaohao/features4demo/CIFAR10/VGG19/FGSM/Benign/features_' + str(i) + '.npy'
-    path_adv = '/data0/jinhaibo/lixiaohao/features4demo/CIFAR10/VGG19/FGSM/Adv/features_' + str(i) + '.npy'
+    path_Benign = 'features4demo/CIFAR10/VGG19/FGSM/Benign/features_' + str(i) + '.npy'
+    path_adv = 'features4demo/CIFAR10/VGG19/FGSM/Adv/features_' + str(i) + '.npy'
     if i == 0:
         Benign_feature = np.load(path_Benign)
         adv_feature = np.load(path_adv)
@@ -57,7 +58,7 @@ def meta_classify(input_shape):
 model_detect = meta_classify(input_shape=Input(shape=x_train.shape[1:]))
 model_detect.fit(x_train, y_train, batch_size=5, epochs=10)
 #%%
-model_detect.save('/data0/jinhaibo/lixiaohao/features4demo/model_without.h5')
+model_detect.save('features4demo/model_without.h5')
 # %%
 predict = model_detect.predict(Benign_feature[num_train:])
 predict = np.argmax(predict, axis=1)
@@ -67,7 +68,7 @@ for i in range(len(predict)):
         index.append(i + 200)
 
 # %%
-np.save('/data0/jinhaibo/lixiaohao/features4demo/CIFAR10/VGG19/index.npy', index)
+np.save('features4demo/CIFAR10/VGG19/index.npy', index)
 
 # %%
 names_layer = 'train'
@@ -94,5 +95,6 @@ for i in index:
 #%%
 class_feature = np.array(class_feature)
 class_feature = class_feature[:,0, :]
+
 #%%
-np.save('/data0/jinhaibo/lixiaohao/features4demo/Benign_classifeir_po.npy', class_feature)
+np.save('features4demo/Benign_classifeir_po.npy', class_feature)
