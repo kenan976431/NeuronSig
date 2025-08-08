@@ -18,62 +18,32 @@ tf.compat.v1.disable_eager_execution()
 
 # %%
 parser = argparse.ArgumentParser()
-# parser.add_argument('--dataset', type=str, default='normal')
 parser.add_argument('--batch', type=int, default=0)
-# parser.add_argument('--noise_init', type=float, default=0.01)
 args = parser.parse_args()
-# batch_size = []
+
 # %%
-# 模型、对抗样本载入
-model = load_model('/data0/jinhaibo/DGAN/train_model/resnet20.h5')
-# model.summary()
+model = load_model('train_model/resnet20.h5')
+
 # %%GTSRB
-x_train = np.load('/data0/jinhaibo/DGAN/GTSRB_img_Crop/Final_Training/GTSRB100.npy')
-y_train = np.load('/data0/jinhaibo/DGAN/GTSRB_img_Crop/Final_Training/GTSRB100-labels.npy')
+x_train = np.load('GTSRB_img_Crop/Final_Training/GTSRB100.npy')
+y_train = np.load('GTSRB_img_Crop/Final_Training/GTSRB100-labels.npy')
 y_train = to_categorical(y_train, 43)
 x_train = x_train /255.0
 x_train_1 = []
 for i in range(43):
     x = x_train[np.argmax(y_train, axis=1)==i]
     x_train_1.extend(x[:50])
-advs = np.load('/data0/jinhaibo/DGAN/adv_GTSRB/resnet20/AUNA/adv.npy')
-advs_label = np.load('/data0/jinhaibo/DGAN/adv_GTSRB/resnet20/AUNA/truth_label.npy')
+advs = np.load('adv_GTSRB/resnet20/AUNA/adv.npy')
+advs_label = np.load('adv_GTSRB/resnet20/AUNA/truth_label.npy')
 advs_label = to_categorical(advs_label, 43)
 adv_train = []
-# adv_test = []
+
 for i in range(43):
     x = advs[np.argmax(advs_label, axis=1)==i]
     adv_train.extend(x[:50])
 x_train = np.array(x_train_1)
 x_adv = np.array(adv_train)
-#%%
-# (x_train, y_train), (x_test, y_test) = load_data()
-# x_train = x_train / 255.0
-# x_test = x_test / 255.0
-# y_train = to_categorical(y_train, num_classes=10)
-# y_test = to_categorical(y_test, num_classes=10)
-# batch1 = args.batch
-# print(batch1)
-# path = '/data0/jinhaibo/lixiaohao/Adaptive/cifar10_VGG19/adv_x' + str(batch1)+'.npy'
-# print(path)
-# advs = np.load(path)
-# advs = []
-# for i in range(2):
-#     path = '/data0/jinhaibo/lixiaohao/adv_cifar10/Vgg16/Boundary/adv_train_' + str(i+1) + '.npy'
-#     advs.extend(np.load(path))
-# advs_train = []
-# advs_test = []
-# for i in range(10):
-#     path = '/data0/jinhaibo/DGAN/adv_imagenet/vgg/adv_examples/JSMA/adv_test_x_' + str(i)+'.npy'
-#     adv = np.load(path)
-#     advs_train.extend(adv[:20])
-#     advs_test.extend(adv[20:50])
-# advs = np.vstack((advs_train, advs_test))
-#
-# x_train = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data.npy')
-# x_train = x_train/255.0
-# y_train = np.load('/data0/jinhaibo/DGAN/animals_10_datasets/vgg/train/img_data_label.npy')
-# %%
+
 #### scale neuron values
 names_layer = 'flatten'
 
@@ -83,7 +53,6 @@ def scale(intermediate_layer_output, rmax=1, rmin=0):
             intermediate_layer_output.max() - intermediate_layer_output.min())
     X_scaled = X_std * (rmax - rmin) + rmin
     return X_scaled
-
 
 #### only choose fc2 to cal.
 
@@ -131,24 +100,9 @@ def get_position(input_data, model, model_layer_dict, threshold=0):
 # %%
 layer_num = 64  # #fc2 total neurons
 benign_features = []
-# num_sample = 300  # # expend the data
-# batch1 = args.batch
 batch1 = args.batch
 print(batch1)
 batch = batch1 * 50
-# for i in range(args.batch * 50, (args.batch + 1) * 50):
-#     x = x_train[i:i + 1]
-#     model_layer_dict = init_position_tables(model)
-#     print(i)
-#     neuron_values = get_activation_values(x, model)
-#     get_position(x, model, model_layer_dict, threshold=0.5)
-#     # ## total neuron = 4096
-#     not_activated = [(layer_name, index) for (layer_name, index), v in list(model_layer_dict.items())[:layer_num] if
-#                      not v]
-#     neuron_positions = [0 if not v else 1 for (layer_name, index), v in list(model_layer_dict.items())[:layer_num]]
-#     features = np.hstack((np.array(neuron_values).reshape(-1), np.array(neuron_positions).reshape(-1))).reshape(1, -1)
-#     benign_features.append(features)
-# batch1 = args.batch
 adv_features = []
 for i in range(50):
     x = x_adv[i + batch: i + batch + 1]
@@ -163,8 +117,10 @@ for i in range(50):
     neuron_positions = [0 if not v else 1 for (layer_name, index), v in list(model_layer_dict.items())[:layer_num]]
     features = np.hstack((np.array(neuron_values).reshape(-1), np.array(neuron_positions).reshape(-1))).reshape(1, -1)
     adv_features.append(features)
-path1 = '/data0/jinhaibo/lixiaohao/adv_GTSRB/ResNet20/noise'
+    
+path1 = 'adv_GTSRB/ResNet20/noise'
 if not os.path.exists(path1):
     os.makedirs(path1)
 print(path1)
 np.save(path1+'/feature_'+str(batch1) + '.npy', adv_features)
+
